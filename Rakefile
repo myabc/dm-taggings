@@ -19,15 +19,15 @@ begin
   Jeweler::Tasks.new do |gem|
 
     gem.name        = 'dm-is-taggable'
-    gem.summary     = 'Tagging plugin for datamapper'
+    gem.summary     = 'Tagging plugin for DataMapper'
     gem.description = 'DataMapper plugin that adds the possibility to tag models'
-    gem.email       = 'gamsnjaga@gmail.com'
-    gem.homepage    = 'http://github.com/snusnu/dm-is-taggable'
-    gem.authors     = [ 'Maxime Guilbot', 'Martin Gamsjaeger (snusnu)' ]
+    gem.email       = 'piotr.solnica@gmail.com'
+    gem.homepage    = 'http://github.com/solnic/dm-is-taggable'
+    gem.authors     = [ 'Maxime Guilbot', 'Martin Gamsjaeger (snusnu)', 'Piotr Solnica' ]
 
-    gem.add_dependency 'dm-core',           '~> 0.10.2'
-    gem.add_dependency 'dm-constraints',    '~> 0.10.2'
-    gem.add_dependency 'dm-is-remixable',   '~> 0.10.2'
+    gem.add_dependency 'dm-core',           '~> 1.0.2'
+    gem.add_dependency 'dm-constraints',    '~> 1.0.2'
+    gem.add_dependency 'dm-is-remixable',   '~> 1.0.2'
 
     gem.add_development_dependency 'rspec', '~> 1.3'
     gem.add_development_dependency 'yard',  '~> 0.5'
