@@ -25,38 +25,27 @@ module DataMapper
         
         # Make the magic happen
         options[:by] ||= []
-        
-        taggers_associations = ""
-        options[:by].each do |tagger_class|
-          taggers_associations << "belongs_to :#{Extlib::Inflection.underscore(tagger_class.to_s)}\n"
-        end
-        
-        class_eval <<-RUBY
-          remix n, :taggings
 
-          enhance :taggings do
-            belongs_to :tag
-            belongs_to :#{Extlib::Inflection.underscore(self.to_s)}
-            #{taggers_associations}
+        taggable_class_name = self.to_s
+
+        remix n, :taggings
+
+        enhance :taggings do
+          belongs_to :tag
+          belongs_to DataMapper::Inflector.underscore(taggable_class_name)
+
+          options[:by].each do |tagger_class|
+            belongs_to DataMapper::Inflector.underscore(tagger_class.to_s), :required => false
           end
-          
-          has n, :tags,
-            :through => :#{Extlib::Inflection.underscore(self.to_s)}_tags,
-            :constraint => :destroy
-        RUBY
-        
-        Tag.class_eval <<-RUBY
-          has n, :#{Extlib::Inflection.underscore(self.to_s)}_tags,
-            :constraint => :destroy
-          has n, :#{Extlib::Inflection.underscore(self.to_s).pluralize},
-            :through => :#{Extlib::Inflection.underscore(self.to_s)}_tags,
-            :constraint => :destroy
-        RUBY
-        
+        end
+
+        has n, :tags, :through => :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
+
+        Tag.has n, :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
+        Tag.has n, :"#{DataMapper::Inflector.underscore(self.to_s).pluralize}", :through => :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
+
         options[:by].each do |tagger_class|
-          tagger_class.class_eval <<-RUBY
-            is :tagger, :for => [#{self}]
-          RUBY
+          tagger_class.is :tagger, :for => [self]
         end
       end
 
@@ -73,33 +62,32 @@ module DataMapper
           tags.collect!{|t| t.class == Tag ? t : Tag.first(:name => t)}.compact!
           
           # Query the objects tagged with those tags
-          taggings = Extlib::Inflection::constantize("#{self.to_s}Tag").all(:tag_id => tags.collect{|t| t.id})
-          taggings.collect{|tagging| tagging.send(Extlib::Inflection::underscore(self.to_s)) }
+          taggings = DataMapper::Inflector.constantize("#{self.to_s}Tag").all(:tag_id => tags.collect{|t| t.id})
+          taggings.collect{|tagging| tagging.send(DataMapper::Inflector.underscore(self.to_s)) }
         end
       end # ClassMethods
 
       module InstanceMethods
         def tag(tags)
-          tags = [tags] unless tags.class == Array
+          tags = [tags] unless tags.kind_of?(Array)
           
           tags.each do |tag_name|
-            tag_name = Tag.build(tag_name) if tag_name.class == String
-            next if self.send("#{Extlib::Inflection::underscore(self.class.to_s)}_tags").first(:tag_id => tag_name.id, "#{Extlib::Inflection::underscore(self.class.to_s)}_id".intern => self.id)
-            
-            p = Extlib::Inflection::constantize("#{self.class.to_s}Tag").new(:tag => tag_name)
-            self.send("#{Extlib::Inflection::underscore(self.class.to_s)}_tags") << p
-            p.save unless self.new?
+            tag_name = Tag.build(tag_name) if tag_name.kind_of?(String)
+
+            next if tags_collection.first(:tag_id => tag_name.id, "#{DataMapper::Inflector.underscore(self.class.to_s)}_id".intern => id)
+
+            new_tag = tags_collection.new(:tag => tag_name)
+            new_tag.save unless new?
+            new_tag
           end
         end
         
         def untag(tags)
-          tags = [tags] unless tags.class == Array
+          tags = [tags] unless tags.kind_of?(Array)
           
           tags.each do |tag_name|
-            tag_name = Tag.build(tag_name) if tag_name.class == String
-
-            p = self.send("#{Extlib::Inflection::underscore(self.class.to_s)}_tags").first(:tag_id => tag_name.id)
-            p.destroy if p
+            tag_name = Tag.build(tag_name) if tag_name.kind_of?(String)
+            tags_collection.all(:tag_id => tag_name.id).destroy
           end
         end
         
@@ -116,6 +104,16 @@ module DataMapper
           
           # Do the tagging here
           list.each { |t| self.tag(Tag.build(t)) }
+        end
+
+        protected
+
+        def tags_collection
+          send("#{DataMapper::Inflector.underscore(self.class.to_s)}_tags")
+        end
+
+        def tag_class
+          @tag_class ||= DataMapper::Inflector.constantize("#{self.class.to_s}Tag")
         end
       end # InstanceMethods
 
