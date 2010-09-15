@@ -26,8 +26,12 @@ describe 'DataMapper::Is::Taggable' do
       Post.taggable?.should == true
     end
 
-    it "should add a tag method for tagging purposes" do
-      @post.should respond_to(:tag)
+    it "should add a tag! method for tagging purposes" do
+      @post.should respond_to(:tag!)
+    end
+
+    it "should add a untag! method for tagging purposes" do
+      @post.should respond_to(:untag!)
     end
 
     it "should add a tags method for getting all the tags in an array" do
@@ -38,16 +42,16 @@ describe 'DataMapper::Is::Taggable' do
     it "should add a tag_list method for getting the tag list" do
       @post.tags_list.should == ""
 
-      @post.tag(@blue)
+      @post.tag!(@blue)
       @post.reload
       @post.tags_list.should == "blue"
 
-      @post.tag(@yellow)
+      @post.tag!(@yellow)
       @post.reload
       @post.tags_list.should == "blue, yellow"
 
-      @post.untag(@blue)
-      @post.untag(@yellow)
+      @post.untag!(@blue)
+      @post.untag!(@yellow)
 
       @post.reload
       @post.tags_list.should == ""
@@ -55,12 +59,12 @@ describe 'DataMapper::Is::Taggable' do
 
     # Post tagging
     it "should be able to tag a post" do
-      @post.tag('blue')
+      @post.tag!('blue')
       @post.tags.reload
       @post.tags.size.should eql(1)
       @post.tags.should include(@blue)
 
-      @post.tag(['yellow', @blue])
+      @post.tag!(['yellow', @blue])
       @post.tags.reload
       @post.tags.size.should eql(2)
       @post.tags.should include(@blue)
@@ -78,7 +82,7 @@ describe 'DataMapper::Is::Taggable' do
 
     # Post Untagging
     it "should be able to untag a post" do
-      @post.untag(@blue)
+      @post.untag!(@blue)
       @post.tags.reload
       @post.tags.should_not include(@blue)
 
@@ -88,12 +92,12 @@ describe 'DataMapper::Is::Taggable' do
 
     # Book tagging
     it "should be able to tag a book without tagger" do
-      @book.tag(@fiction)
+      @book.tag!(@fiction)
       @book.tags.reload
       @book.tags.size.should eql(1)
       @book.tags.should include(@fiction)
 
-      @book.tag(@english)
+      @book.tag!(@english)
       @book.tags.reload
       @book.tags.size.should eql(2)
       @book.tags.should include(@fiction)
@@ -101,14 +105,14 @@ describe 'DataMapper::Is::Taggable' do
     end
 
     it "should be able to tag another book with the same tag" do
-      @second_book.tag(@fiction)
+      @second_book.tag!(@fiction)
       @second_book.reload
       @second_book.tags.size.should eql(1)
       @second_book.tags.should include(@fiction)
 
       @fiction.books.should include(@second_book)
 
-      @second_book.untag(@fiction)
+      @second_book.untag!(@fiction)
       @fiction.reload
     end
 
@@ -123,7 +127,7 @@ describe 'DataMapper::Is::Taggable' do
 
     # Book Untagging
     it "should be able to untag a book" do
-      @book.untag(@english)
+      @book.untag!(@english)
       @book.tags.reload
       @book.tags.should_not include(@english)
       @book.tags.should include(@fiction)
@@ -137,8 +141,9 @@ describe 'DataMapper::Is::Taggable' do
     end
 
     it "bob user should be able to tag a book as a tagger" do
+
       @scifi = Tag.build('scifi')
-      @bob.tag(@book, :with => @scifi)
+      @bob.tag!(@book, :with => @scifi)
 
       @bob.books.reload
       @bob.books.size.should eql(1)
@@ -146,6 +151,8 @@ describe 'DataMapper::Is::Taggable' do
 
       @scifi.books.size.should eql(1)
       @scifi.books.should include(@book)
+
+      @book.tag!(@fiction)
 
       @book.tags.reload
       @book.tags.size.should eql(2)

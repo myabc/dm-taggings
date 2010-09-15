@@ -68,42 +68,46 @@ module DataMapper
       end # ClassMethods
 
       module InstanceMethods
-        def tag(tags)
+        def tag!(tags)
           tags = [tags] unless tags.kind_of?(Array)
           
-          tags.each do |tag_name|
-            tag_name = Tag.build(tag_name) if tag_name.kind_of?(String)
+          tags.each do |tag_or_name|
+            tag = tag_or_name.kind_of?(Tag) ? tag_or_name : Tag[tag_or_name]
 
-            next if tags_collection.first(:tag_id => tag_name.id, "#{DataMapper::Inflector.underscore(self.class.to_s)}_id".intern => id)
+            unless new?
+              if tags_collection.first(:tag => tag, "#{DataMapper::Inflector.underscore(self.class.to_s)}_id".intern => id)
+                next
+              end
+            end
 
-            new_tag = tags_collection.new(:tag => tag_name)
-            new_tag.save unless new?
-            new_tag
+            tags_collection.new(:tag => tag)
           end
+
+          tags_collection.save unless new?
         end
         
-        def untag(tags)
+        def untag!(tags)
           tags = [tags] unless tags.kind_of?(Array)
-          
-          tags.each do |tag_name|
-            tag_name = Tag.build(tag_name) if tag_name.kind_of?(String)
-            tags_collection.all(:tag_id => tag_name.id).destroy
+          tags = tags.map { |tag_or_name| tag_or_name.kind_of?(Tag) ? tag_or_name : Tag[tag_or_name] }
+
+          if tags.blank?
+            tags_collection.all.destroy
+          else
+            tags_collection.all(:tag => tags).destroy
           end
         end
         
         def tags_list
-          @tags_list || self.tags.collect {|t| t.name}.join(", ")
+          @tags_list || tags.collect { |tag| tag.name }.join(", ")
         end
         
         def tags_list=(list)
           @tags_list = list
-          self.tags.each {|t| self.untag(t) }
-          
-          # Tag list generation
-          list = list.split(",").collect {|s| s.strip}
-          
-          # Do the tagging here
-          list.each { |t| self.tag(Tag.build(t)) }
+
+          tag_names = list.split(",").each { |name| name.strip! }
+
+          untag!(tag_names) unless new?
+          tag!(tag_names)
         end
 
         protected

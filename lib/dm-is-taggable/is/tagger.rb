@@ -50,7 +50,7 @@ module DataMapper
       end # ClassMethods
 
       module InstanceMethods
-        def tag(object, options={})
+        def tag!(object, options={})
           raise "Object of type #{object.class} isn't taggable!" unless self.taggable_object_classes.include?(object.class)
           
           tags = options[:with]
