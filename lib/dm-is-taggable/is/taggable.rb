@@ -68,27 +68,19 @@ module DataMapper
       end # ClassMethods
 
       module InstanceMethods
-        def tag!(tags)
-          tags = [tags] unless tags.kind_of?(Array)
-          
-          tags.each do |tag_or_name|
-            tag = tag_or_name.kind_of?(Tag) ? tag_or_name : Tag[tag_or_name]
+        def tag!(tags_or_names)
+          tags = extract_tags_from_names(tags_or_names)
 
-            unless new?
-              if tags_collection.first(:tag => tag, "#{DataMapper::Inflector.underscore(self.class.to_s)}_id".intern => id)
-                next
-              end
-            end
-
+          tags.each do |tag|
+            next if self.tags.include?(tag)
             tags_collection.new(:tag => tag)
           end
 
           tags_collection.save unless new?
         end
         
-        def untag!(tags)
-          tags = [tags] unless tags.kind_of?(Array)
-          tags = tags.map { |tag_or_name| tag_or_name.kind_of?(Tag) ? tag_or_name : Tag[tag_or_name] }
+        def untag!(tags_or_names)
+          tags = extract_tags_from_names(tags_or_names)
 
           if tags.blank?
             tags_collection.all.destroy
@@ -118,6 +110,14 @@ module DataMapper
 
         def tag_class
           @tag_class ||= DataMapper::Inflector.constantize("#{self.class.to_s}Tag")
+        end
+
+        def extract_tags_from_names(tags_or_names)
+          tags_or_names = [tags_or_names] unless tags_or_names.kind_of?(Array)
+
+          tags_or_names.map do |tag_or_name|
+            tag_or_name.kind_of?(Tag) ? tag_or_name : Tag[tag_or_name]
+          end
         end
       end # InstanceMethods
 
