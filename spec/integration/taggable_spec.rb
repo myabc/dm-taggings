@@ -1,6 +1,7 @@
 require 'pathname'
 require Pathname(__FILE__).dirname.expand_path.parent + 'spec_helper'
 
+
 describe 'DataMapper::Is::Taggable' do
   supported_by :all do
     require "#{SPEC_ROOT}/fixtures/models"
@@ -50,8 +51,7 @@ describe 'DataMapper::Is::Taggable' do
       @post.reload
       @post.tags_list.should == "blue, yellow"
 
-      @post.untag!(@blue)
-      @post.untag!(@yellow)
+      @post.untag!([@blue, @yellow])
 
       @post.reload
       @post.tags_list.should == ""
@@ -169,7 +169,7 @@ describe 'DataMapper::Is::Taggable' do
       @book.tags.reload
       @book.tags.should be_empty
 
-      @book.tags_list = "orange, red"
+      @book.update(:tags_list => "orange, red")
       @book.tags.reload
       @book.tags.size.should eql(2)
       @book.tags.should include(Tag.build('orange'))
@@ -177,8 +177,7 @@ describe 'DataMapper::Is::Taggable' do
     end
 
     it "should be able to tag a newly created object with tags_list=" do
-      new_book = Book.new(:title => "Awesome world", :isbn => "1234567890124", :author => "Wonderful author", :tags_list => "new, awesome, book")
-      new_book.save
+      new_book = Book.create(:title => "Awesome world", :isbn => "1234567890124", :author => "Wonderful author", :tags_list => "new, awesome, book")
 
       new_book.reload
       new_book.tags.size.should eql(3)
@@ -188,8 +187,12 @@ describe 'DataMapper::Is::Taggable' do
     end
 
     it "should be able to get the books tagged with a specific tag" do
+      @book.tag!(['orange'])
+
       Book.tagged_with('orange').size.should eql(1)
       Book.tagged_with('orange').should include(@book)
+
+      @post.tag!(['yellow'])
 
       Post.tagged_with('blue').size.should eql(0)
       Post.tagged_with('yellow').size.should eql(1)
