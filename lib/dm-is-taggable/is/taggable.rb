@@ -16,17 +16,24 @@ module DataMapper
         # Add instance-methods
         include DataMapper::Is::Taggable::InstanceMethods
 
+        class << self
+          attr_reader :tagging_relationship_name, :tagging_relationship, :tagging_class
+        end
+
         # Make the magic happen
         options[:by] ||= []
 
+        remix n, :taggings
+
+        @tagging_relationship_name  = "#{DataMapper::Inflector.underscore(self.to_s)}_tags".to_sym
+        @tagging_relationship       = relationships[@tagging_relationship_name]
+        @tagging_class              = @tagging_relationship.child_model
+
         taggable_class_name        = self.name
-        tagging_relationship_name  = "#{DataMapper::Inflector.underscore(self.to_s)}_tags".to_sym
         taggable_relationship_name = DataMapper::Inflector.underscore(taggable_class_name).pluralize
 
-        tagging_class = remix n, :taggings
-
-        relationships[tagging_relationship_name].add_constraint_option(
-          taggable_relationship_name, tagging_class, self, :constraint => :destroy!)
+        @tagging_relationship.add_constraint_option(
+          taggable_relationship_name, @tagging_class, self, :constraint => :destroy!)
 
         enhance :taggings do
           belongs_to :tag
@@ -37,10 +44,10 @@ module DataMapper
           end
         end
 
-        has n, :tags, :through => tagging_relationship_name, :constraint => :destroy!
+        has n, :tags, :through => @tagging_relationship_name, :constraint => :destroy!
 
-        Tag.has n, tagging_relationship_name,  :constraint => :destroy
-        Tag.has n, taggable_relationship_name, :through => tagging_relationship_name
+        Tag.has n, @tagging_relationship_name,  :constraint => :destroy
+        Tag.has n, taggable_relationship_name, :through => @tagging_relationship_name
 
         options[:by].each do |tagger_class|
           tagger_class.is :tagger, :for => [self]
@@ -54,14 +61,14 @@ module DataMapper
 
         def tagged_with(tags)
           # tags can be an object or an array
-          tags = [tags] unless tags.class == Array
+          tags = [tags] unless tags.kind_of?(Array)
 
           # Transform Strings to Tags if necessary
-          tags.collect!{|t| t.class == Tag ? t : Tag.first(:name => t)}.compact!
+          tags.collect! { |tag|
+            tag.kind_of?(Tag) ? tag : Tag.first(:name => tag) }.compact!
 
-          # Query the objects tagged with those tags
-          taggings = DataMapper::Inflector.constantize("#{self.to_s}Tag").all(:tag_id => tags.collect{|t| t.id})
-          taggings.collect{|tagging| tagging.send(DataMapper::Inflector.underscore(self.to_s)) }
+          # Query the objects tagged with those tags
+          tagging_class.all(:tag => tags).send(DataMapper::Inflector.underscore(self.name))
         end
       end # ClassMethods
 
@@ -80,10 +87,10 @@ module DataMapper
 
           tags.each do |tag|
             next if self.tags.include?(tag)
-            tags_collection.new(:tag => tag)
+            taggings_collection.new(:tag => tag)
           end
 
-          tags_collection
+          taggings_collection
         end
 
         # Add tags to a resource and persists them.
@@ -96,9 +103,9 @@ module DataMapper
         #
         # @api public
         def tag!(tags_or_names)
-          tags_collection = tag(tags_or_names)
-          tags_collection.save! unless new?
-          tags_collection
+          taggings_collection = tag(tags_or_names)
+          taggings_collection.save! unless new?
+          taggings_collection
         end
 
         # Delete given tags from a resource collection without actually deleting
@@ -115,12 +122,12 @@ module DataMapper
           tags = extract_tags_from_names(tags_or_names) if tags_or_names
 
           tags_to_delete = if tags.blank?
-                             tags_collection.all
+                             taggings_collection.all
                            else
-                             tags_collection.all(:tag => tags)
+                             taggings_collection.all(:tag => tags)
                            end
 
-          tags_collection.delete_if { |tag| tags_to_delete.include?(tag) }
+          taggings_collection.delete_if { |tag| tags_to_delete.include?(tag) }
 
           tags_to_delete
         end
@@ -135,9 +142,9 @@ module DataMapper
         #
         # @api public
         def untag!(tags_or_names=nil)
-          tags_collection = untag(tags_or_names)
-          tags_collection.destroy! unless new?
-          tags_collection
+          taggings_collection = untag(tags_or_names)
+          taggings_collection.destroy! unless new?
+          taggings_collection
         end
 
         # Return a string representation of tags collection
@@ -172,17 +179,12 @@ module DataMapper
           super
         end
 
+        # @api public
+        def taggings_collection
+          send(self.class.tagging_relationship_name)
+        end
+
         protected
-
-        # @api semipublic
-        def tags_collection
-          send("#{DataMapper::Inflector.underscore(self.class.to_s)}_tags")
-        end
-
-        # @api semipublic
-        def tag_class
-          @tag_class ||= DataMapper::Inflector.constantize("#{self.class.to_s}Tag")
-        end
 
         # @api private
         def extract_tags_from_names(tags_or_names)
