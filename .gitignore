@@ -1,4 +1,5 @@
 pkg/*
 coverage
 .bundle
+Gemfile.lock
 
