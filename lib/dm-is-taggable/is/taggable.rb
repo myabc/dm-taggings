@@ -3,17 +3,10 @@ module DataMapper
     module Taggable
 
       ##
-      # fired when your plugin gets included into Resource
-      #
-      def self.included(base)
-
-      end
-
-      ##
       # Methods that should be included in DataMapper::Model.
       # Normally this should just be your generator, so that the namespace
       # does not get cluttered. ClassMethods and InstanceMethods gets added
-      # in the specific resources when you fire is :example
+      # in the specific resources when you fire is :taggable
       ##
 
       def is_taggable(options={})
@@ -22,7 +15,7 @@ module DataMapper
         extend  DataMapper::Is::Taggable::ClassMethods
         # Add instance-methods
         include DataMapper::Is::Taggable::InstanceMethods
-        
+
         # Make the magic happen
         options[:by] ||= []
 
@@ -53,14 +46,14 @@ module DataMapper
         def taggable?
           true
         end
-        
+
         def tagged_with(tags)
           # tags can be an object or an array
           tags = [tags] unless tags.class == Array
-          
+
           # Transform Strings to Tags if necessary
           tags.collect!{|t| t.class == Tag ? t : Tag.first(:name => t)}.compact!
-          
+
           # Query the objects tagged with those tags
           taggings = DataMapper::Inflector.constantize("#{self.to_s}Tag").all(:tag_id => tags.collect{|t| t.id})
           taggings.collect{|tagging| tagging.send(DataMapper::Inflector.underscore(self.to_s)) }
@@ -117,10 +110,10 @@ module DataMapper
           tags = extract_tags_from_names(tags_or_names) if tags_or_names
 
           tags_to_delete = if tags.blank?
-            tags_collection.all
-          else
-            tags_collection.all(:tag => tags)
-          end
+                             tags_collection.all
+                           else
+                             tags_collection.all(:tag => tags)
+                           end
 
           tags_collection.delete_if { |tag| tags_to_delete.include?(tag) }
 
@@ -199,3 +192,4 @@ module DataMapper
     end # Taggable
   end # Is
 end # DataMapper
+
