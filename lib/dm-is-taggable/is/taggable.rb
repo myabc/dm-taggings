@@ -19,23 +19,28 @@ module DataMapper
         # Make the magic happen
         options[:by] ||= []
 
-        taggable_class_name = self.to_s
+        taggable_class_name        = self.name
+        tagging_relationship_name  = "#{DataMapper::Inflector.underscore(self.to_s)}_tags".to_sym
+        taggable_relationship_name = DataMapper::Inflector.underscore(taggable_class_name).pluralize
 
-        remix n, :taggings
+        tagging_class = remix n, :taggings
+
+        relationships[tagging_relationship_name].add_constraint_option(
+          taggable_relationship_name, tagging_class, self, :constraint => :destroy!)
 
         enhance :taggings do
           belongs_to :tag
           belongs_to DataMapper::Inflector.underscore(taggable_class_name)
 
           options[:by].each do |tagger_class|
-            belongs_to DataMapper::Inflector.underscore(tagger_class.to_s), :required => false
+            belongs_to DataMapper::Inflector.underscore(tagger_class.name), :required => false
           end
         end
 
-        has n, :tags, :through => :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
+        has n, :tags, :through => tagging_relationship_name, :constraint => :destroy!
 
-        Tag.has n, :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
-        Tag.has n, :"#{DataMapper::Inflector.underscore(self.to_s).pluralize}", :through => :"#{DataMapper::Inflector.underscore(self.to_s)}_tags", :constraint => :destroy
+        Tag.has n, tagging_relationship_name,  :constraint => :destroy
+        Tag.has n, taggable_relationship_name, :through => tagging_relationship_name
 
         options[:by].each do |tagger_class|
           tagger_class.is :tagger, :for => [self]

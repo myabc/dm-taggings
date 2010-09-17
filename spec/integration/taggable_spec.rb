@@ -199,5 +199,11 @@ describe 'DataMapper::Is::Taggable' do
       Post.tagged_with([@yellow, @blue]).size.should eql(1)
       Post.tagged_with(['yellow', 'blue']).should include(@post)
     end
+
+    it "should destroy the taggings along with a taggable" do
+      @book.tag!(['orange', 'blue'])
+      @book.destroy.should be(true)
+      BookTag.all(:book_id => @book.id).should be_blank
+    end
   end
 end
