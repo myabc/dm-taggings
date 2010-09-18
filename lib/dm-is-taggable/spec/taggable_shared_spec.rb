@@ -177,6 +177,16 @@ share_examples_for 'A taggable resource' do
 
     describe ".tags_list=" do
       describe "with a list of tag names" do
+        describe "with blank values" do
+          before :all do
+            @resource = create_taggable(:tags_list => "foo, , ,bar, , ")
+          end
+
+          it "should add new tags and reject blank names" do
+            @resource.reload.tags.should include(Tag["foo"], Tag["bar"])
+          end
+        end
+
         describe "when tags are removed and added" do
           before :all do
             @resource = create_taggable(:tags_list => "foo, bar")

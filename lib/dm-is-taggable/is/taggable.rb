@@ -170,7 +170,7 @@ module DataMapper
         def tags_list=(list)
           @tags_list = list
 
-          tag_names = list.split(",").each { |name| name.strip! }
+          tag_names = list.split(",").map { |name| name.blank? ? nil : name.strip }.compact
 
           old_tag_names = taggings.map { |tagging| tagging.tag.name } - tag_names
 
