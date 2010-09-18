@@ -90,10 +90,10 @@ module DataMapper
 
           tags.each do |tag|
             next if self.tags.include?(tag)
-            taggings_collection.new(:tag => tag)
+            taggings.new(:tag => tag)
           end
 
-          taggings_collection
+          taggings
         end
 
         # Add tags to a resource and persists them.
@@ -106,9 +106,9 @@ module DataMapper
         #
         # @api public
         def tag!(tags_or_names)
-          taggings_collection = tag(tags_or_names)
-          taggings_collection.save! unless new?
-          taggings_collection
+          taggings = tag(tags_or_names)
+          taggings.save! unless new?
+          taggings
         end
 
         # Delete given tags from a resource collection without actually deleting
@@ -124,15 +124,15 @@ module DataMapper
         def untag(tags_or_names=nil)
           tags = extract_tags_from_names(tags_or_names) if tags_or_names
 
-          tags_to_delete = if tags.blank?
-                             taggings_collection.all
+          taggings_to_destroy = if tags.blank?
+                             taggings.all
                            else
-                             taggings_collection.all(:tag => tags)
+                             taggings.all(:tag => tags)
                            end
 
-          taggings_collection.delete_if { |tag| tags_to_delete.include?(tag) }
+          self.taggings = taggings - taggings_to_destroy
 
-          tags_to_delete
+          taggings_to_destroy
         end
 
         # Same as untag but actually delete the tags from the datastore.
@@ -145,9 +145,9 @@ module DataMapper
         #
         # @api public
         def untag!(tags_or_names=nil)
-          taggings_collection = untag(tags_or_names)
-          taggings_collection.destroy! unless new?
-          taggings_collection
+          taggings_to_destroy = untag(tags_or_names)
+          taggings_to_destroy.destroy! unless new?
+          taggings_to_destroy
         end
 
         # Return a string representation of tags collection
@@ -172,8 +172,12 @@ module DataMapper
 
           tag_names = list.split(",").each { |name| name.strip! }
 
-          untag(tag_names)
-          tag(tag_names)
+          cur_tag_names = taggings.map { |tagging| tagging.tag.name }
+          new_tag_names = tag_names - cur_tag_names
+          old_tag_names = cur_tag_names - tag_names
+
+          untag!(old_tag_names)
+          tag(new_tag_names)
         end
 
         # @api public
@@ -183,8 +187,13 @@ module DataMapper
         end
 
         # @api public
-        def taggings_collection
+        def taggings
           send(self.class.tagging_relationship_name)
+        end
+
+        # @api public
+        def taggings=(taggings)
+          send("#{self.class.tagging_relationship_name}=", taggings)
         end
 
         protected

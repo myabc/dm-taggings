@@ -48,7 +48,7 @@ share_examples_for 'A taggable resource' do
     it { should respond_to(:untag) }
     it { should respond_to(:untag!) }
     it { should respond_to(:tags_list) }
-    it { should respond_to(:taggings_collection) }
+    it { should respond_to(:taggings) }
 
     describe ".tag" do
       before :all do
@@ -57,7 +57,7 @@ share_examples_for 'A taggable resource' do
       end
 
       it "should set new taggings" do
-        @taggings.should eql(@resource.taggings_collection)
+        @taggings.should eql(@resource.taggings)
       end
 
       it "should not create new taggings" do
@@ -77,45 +77,139 @@ share_examples_for 'A taggable resource' do
     end
 
     describe ".untag" do
-      before :all do
-        @resource = @taggable.create
-        @taggings = @resource.tag!([@foo_tag, @bar_tag])
-        @resource.untag([@foo_tag, @bar_tag])
+      describe "all" do
+        before :all do
+          @resource = @taggable.create
+          @taggings = @resource.tag!([@foo_tag, @bar_tag])
+
+          @resource.untag
+        end
+
+        it "should remove the taggings from the collection" do
+          @resource.taggings.should be_empty
+        end
+
+        it "should not destroy the taggings" do
+          @resource.reload.tags.should_not be_empty
+        end
       end
 
-      it "should remove the taggings" do
-        @resource.taggings_collection.should be_empty
+      describe "specific names" do
+        before :all do
+          @resource = @taggable.create
+          @taggings = @resource.tag!([@foo_tag, @bar_tag])
+
+          @resource.untag([@foo_tag])
+        end
+
+        it "should remove the related tagging from the collection" do
+          @resource.taggings.size.should eql(1)
+        end
+
+        it "should remove the related tag" do
+          @resource.tags.should_not include(@foo_tag)
+        end
       end
 
-      it "should not destroy the taggings" do
-        @resource.reload.taggings_collection.should_not be_empty
+      describe "when save is called" do
+        before :all do
+          @resource = @taggable.create
+          @taggings = @resource.tag!([@foo_tag, @bar_tag])
+
+          @resource.untag
+        end
+
+        it "should return true" do
+          pending "Currently DataMapper doesn't support saving an empty collection" do
+            @resource.save.should be(true)
+          end
+        end
+
+        it "should destroy taggings" do
+          pending "Currently DataMapper doesn't support saving an empty collection" do
+            @resource.reload.taggings.should be_empty
+          end
+        end
+
+        it "should destroy tags" do
+          pending "Currently DataMapper doesn't support saving an empty collection" do
+            @resource.reload.tags.should be_empty
+          end
+        end
       end
     end
 
     describe ".untag!" do
-      before :all do
-        @resource = @taggable.create
-        @taggings = @resource.tag!([@foo_tag, @bar_tag])
-        @resource.untag([@foo_tag, @bar_tag])
+      describe "all" do
+        before :all do
+          @resource = @taggable.create
+          @taggings = @resource.tag!([@foo_tag, @bar_tag])
+
+          @resource.untag!
+        end
+
+        it "should destroy the taggings" do
+          @resource.reload.taggings.should be_empty
+        end
       end
 
-      it "should destroy the taggings" do
-        @resource.reload.taggings_collection.should_not be_empty
-      end
+      describe "specific names" do
+        before :all do
+          @resource = @taggable.create
+          @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
-      it "should not destroy the tags" do
-        Tag.all.should include(*@tags)
+          @resource.untag!([@foo_tag])
+          @resource.reload
+        end
+
+        subject { @resource.tags }
+
+        it { should_not include(@foo_tag) }
+        it { should include(@bar_tag) }
       end
     end
 
     describe ".tags_list=" do
-      before :all do
-        @tag_names = %w(red green blue)
-        @resource  = @taggable.create(:tags_list => @tag_names.join(', '))
+      describe "with a list of tag names" do
+        before :all do
+          @resource = @taggable.create(:tags_list => "foo, bar")
+          @resource.update(:tags_list => "bar, pub")
+        end
+
+        it "should add new tags" do
+          @resource.reload.tags.should include(Tag["bar"], Tag["pub"])
+        end
+
+        it "should remove tags" do
+          @resource.reload.tags.should_not include(Tag["foo"])
+        end
       end
 
-      it "should set the taggings" do
-        @resource.reload.tags.should include(*Tag.all(:name => @tag_names))
+      describe "when no list of tag names is given" do
+        before :all do
+          @resource = @taggable.create(:tags_list => "foo, bar")
+          @resource.update(:tags_list => "")
+        end
+
+        it "should destroy taggings" do
+          @resource.reload.taggings.should be_blank
+        end
+
+        it "should remove the tags" do
+          @resource.reload.tags.should be_blank
+        end
+      end
+    end
+
+    describe ".tags_list" do
+      before :all do
+        @tag_names = %w(red green blue)
+        @expected  = @tag_names.join(', ')
+        @resource  = @taggable.create(:tags_list => @expected)
+      end
+
+      it "should return the list of tag names" do
+        @resource.tags_list.should eql(@expected)
       end
     end
   end

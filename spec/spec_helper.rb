@@ -6,6 +6,7 @@ require 'dm-is-taggable'
 
 SPEC_ROOT = Pathname(__FILE__).dirname
 
+#DataMapper::Logger.new $stdout, :debug
 DataMapper::Spec.setup
 DataMapper.finalize
 
