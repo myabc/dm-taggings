@@ -26,3 +26,10 @@ class Book
   is :taggable, :by => [User]
 end
 
+class Song
+  include DataMapper::Resource
+
+  property :id, Serial
+  is :taggable
+end
+
