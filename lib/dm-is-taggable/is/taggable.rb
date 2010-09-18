@@ -2,13 +2,12 @@ module DataMapper
   module Is
     module Taggable
 
-      ##
-      # Methods that should be included in DataMapper::Model.
-      # Normally this should just be your generator, so that the namespace
-      # does not get cluttered. ClassMethods and InstanceMethods gets added
-      # in the specific resources when you fire is :taggable
-      ##
-
+      # Make a resource taggable
+      #
+      # @param [Hash] options(optional)
+      #   A hash with options
+      #
+      # @api public
       def is_taggable(options={})
 
         # Add class-methods
@@ -58,10 +57,24 @@ module DataMapper
       end
 
       module ClassMethods
+        # @api public
         def taggable?
           true
         end
 
+        # Return all the taggable resources that are tagged with the given list of tags.
+        #
+        # Can be chained, for instance:
+        #
+        #     Post.tagged_with(["foo", "bar"]).all(:created_at.lt => 1.day.ago)
+        #
+        # @param [Array] tags_or_names
+        #   A list of either tag resources or tag names
+        #
+        # @return [DataMapper::Collection]
+        #   A collection of taggables
+        #
+        # @api public
         def tagged_with(tags_or_names)
           tags_or_names = [tags_or_names] unless tags_or_names.kind_of?(Array)
 
