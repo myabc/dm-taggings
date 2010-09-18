@@ -62,16 +62,16 @@ module DataMapper
           true
         end
 
-        def tagged_with(tags)
-          # tags can be an object or an array
-          tags = [tags] unless tags.kind_of?(Array)
+        def tagged_with(tags_or_names)
+          tags_or_names = [tags_or_names] unless tags_or_names.kind_of?(Array)
 
-          # Transform Strings to Tags if necessary
-          tags.collect! { |tag|
-            tag.kind_of?(Tag) ? tag : Tag.first(:name => tag) }.compact!
+          tag_ids = if tags_or_names.all? { |tag| tag.kind_of?(Tag) }
+                   tags_or_names
+                 else
+                   Tag.all(:name => tags_or_names)
+                 end.map { |tag| tag.id }
 
-          # Query the objects tagged with those tags
-          tagging_class.all(:tag => tags).send(tagging_parent_name)
+          all("#{tagging_relationship_name}.tag_id" => tag_ids)
         end
       end # ClassMethods
 

@@ -44,6 +44,19 @@ share_examples_for 'A taggable resource' do
         it { subject.should eql(:destroy!) }
       end
     end
+
+    describe ".tagged_with" do
+      before :all do
+        @resource_one = create_taggable(:tags_list => "red, green, blue")
+        @resource_two = create_taggable(:tags_list => "orange, yellow")
+      end
+
+      it "should return correct resources" do
+        result = @taggable.tagged_with(["red", "yellow", "purple"])
+        result.size.should eql(2)
+        result.should include(@resource_one, @resource_two)
+      end
+    end
   end
 
   describe "public instance methods" do
