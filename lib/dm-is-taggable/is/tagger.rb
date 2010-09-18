@@ -29,8 +29,10 @@ module DataMapper
         def add_taggable_object_classes(taggable_object_classes)
           taggable_object_classes.each do |taggable_object_class|
             self.taggable_object_classes << taggable_object_class
+
             self.has n, "#{taggable_object_class.storage_name.singular}_tags".intern,
               :constraint => :destroy
+
             self.has n, taggable_object_class.storage_name.intern,
               :through => "#{taggable_object_class.storage_name.singular}_tags".intern,
               :constraint => :destroy
@@ -39,19 +41,19 @@ module DataMapper
       end # ClassMethods
 
       module InstanceMethods
-        def tag!(object, options={})
-          raise "Object of type #{object.class} isn't taggable!" unless self.taggable_object_classes.include?(object.class)
+        def tag!(taggable, options={})
+          unless self.taggable_object_classes.include?(taggable.class)
+            raise "Object of type #{taggable.class} isn't taggable!"
+          end
 
           tags = options[:with]
-          tags = [tags] if tags.class != Array
+          tags = [tags] unless tags.kind_of?(Array)
 
           tags.each do |tag|
-            join_row_class = DataMapper::Inflector.constantize("#{object.class.to_s}Tag")
-            join_row = join_row_class.new(:tag => tag,
-                                          DataMapper::Inflector.underscore(self.class.to_s).intern => self)
-            object.send("#{DataMapper::Inflector.underscore(object.class.to_s)}_tags") << join_row
-            join_row.save
+            taggable.taggings.create(:tag => tag, :tagger => self)
           end
+
+          tags
         end
       end # InstanceMethods
 
