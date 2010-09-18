@@ -1,9 +1,7 @@
 require Pathname(__FILE__).dirname.expand_path.parent + 'spec_helper'
 
-describe 'Tag' do
+describe Tag do
   supported_by :all do
-    require "#{SPEC_ROOT}/fixtures/models"
-
     it "should have id and name columns" do
       [:id, :name].each do |property_name|
         Tag.properties[property_name].should_not be_nil
@@ -23,3 +21,4 @@ describe 'Tag' do
     end
   end
 end
+

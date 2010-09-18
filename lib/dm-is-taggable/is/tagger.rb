@@ -30,11 +30,11 @@ module DataMapper
           taggable_object_classes.each do |taggable_object_class|
             self.taggable_object_classes << taggable_object_class
 
-            self.has n, "#{taggable_object_class.storage_name.singular}_tags".intern,
+            has n, taggable_object_class.tagging_relationship_name,
               :constraint => :destroy
 
-            self.has n, taggable_object_class.storage_name.intern,
-              :through => "#{taggable_object_class.storage_name.singular}_tags".intern,
+            has n, taggable_object_class.taggable_relationship_name,
+              :through => taggable_object_class.tagging_relationship_name,
               :constraint => :destroy
           end
         end
