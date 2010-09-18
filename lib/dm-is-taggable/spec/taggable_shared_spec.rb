@@ -1,8 +1,14 @@
 share_examples_for 'A taggable resource' do
+  def create_taggable(attrs={})
+    @taggable.create(@taggable_attributes.merge(attrs))
+  end
+
   before :all do
     %w[ @taggable ].each do |ivar|
       raise "+#{ivar}+ should be defined in before block" unless instance_variable_defined?(ivar)
     end
+
+    @taggable_attributes ||= {}
 
     @foo_tag  = Tag["foo"]
     @bar_tag  = Tag["bar"]
@@ -52,7 +58,7 @@ share_examples_for 'A taggable resource' do
 
     describe ".tag" do
       before :all do
-        @resource = @taggable.create
+        @resource = create_taggable
         @taggings = @resource.tag([@foo_tag, @bar_tag])
       end
 
@@ -67,7 +73,7 @@ share_examples_for 'A taggable resource' do
 
     describe ".tag!" do
       before :all do
-        @resource = @taggable.create
+        @resource = create_taggable
         @taggings = @resource.tag!([@foo_tag, @bar_tag])
       end
 
@@ -79,7 +85,7 @@ share_examples_for 'A taggable resource' do
     describe ".untag" do
       describe "all" do
         before :all do
-          @resource = @taggable.create
+          @resource = create_taggable
           @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
           @resource.untag
@@ -96,7 +102,7 @@ share_examples_for 'A taggable resource' do
 
       describe "specific names" do
         before :all do
-          @resource = @taggable.create
+          @resource = create_taggable
           @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
           @resource.untag([@foo_tag])
@@ -113,7 +119,7 @@ share_examples_for 'A taggable resource' do
 
       describe "when save is called" do
         before :all do
-          @resource = @taggable.create
+          @resource = create_taggable
           @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
           @resource.untag
@@ -142,7 +148,7 @@ share_examples_for 'A taggable resource' do
     describe ".untag!" do
       describe "all" do
         before :all do
-          @resource = @taggable.create
+          @resource = create_taggable
           @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
           @resource.untag!
@@ -155,7 +161,7 @@ share_examples_for 'A taggable resource' do
 
       describe "specific names" do
         before :all do
-          @resource = @taggable.create
+          @resource = create_taggable
           @taggings = @resource.tag!([@foo_tag, @bar_tag])
 
           @resource.untag!([@foo_tag])
@@ -172,7 +178,7 @@ share_examples_for 'A taggable resource' do
     describe ".tags_list=" do
       describe "with a list of tag names" do
         before :all do
-          @resource = @taggable.create(:tags_list => "foo, bar")
+          @resource = create_taggable(:tags_list => "foo, bar")
           @resource.update(:tags_list => "bar, pub")
         end
 
@@ -187,7 +193,7 @@ share_examples_for 'A taggable resource' do
 
       describe "when no list of tag names is given" do
         before :all do
-          @resource = @taggable.create(:tags_list => "foo, bar")
+          @resource = create_taggable(:tags_list => "foo, bar")
           @resource.update(:tags_list => "")
         end
 
@@ -205,7 +211,7 @@ share_examples_for 'A taggable resource' do
       before :all do
         @tag_names = %w(red green blue)
         @expected  = @tag_names.join(', ')
-        @resource  = @taggable.create(:tags_list => @expected)
+        @resource  = create_taggable(:tags_list => @expected)
       end
 
       it "should return the list of tag names" do
