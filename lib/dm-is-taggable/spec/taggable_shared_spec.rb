@@ -19,7 +19,8 @@ share_examples_for 'A taggable resource' do
     it { should respond_to(:tagging_relationship_name) }
     it { should respond_to(:tagging_relationship) }
     it { should respond_to(:tagging_class) }
-
+    it { should respond_to(:tagging_parent_name) }
+    it { should respond_to(:taggable_relationship_name) }
 
     describe ".taggable?" do
       it "should return true" do

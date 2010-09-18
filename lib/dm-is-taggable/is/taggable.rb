@@ -17,7 +17,8 @@ module DataMapper
         include DataMapper::Is::Taggable::InstanceMethods
 
         class << self
-          attr_reader :tagging_relationship_name, :tagging_relationship, :tagging_class
+          attr_reader :tagging_parent_name, :tagging_relationship_name, :tagging_relationship,
+            :tagging_class, :taggable_relationship_name
         end
 
         # Make the magic happen
@@ -25,19 +26,21 @@ module DataMapper
 
         remix n, :taggings
 
-        @tagging_relationship_name  = "#{DataMapper::Inflector.underscore(self.to_s)}_tags".to_sym
-        @tagging_relationship       = relationships[@tagging_relationship_name]
-        @tagging_class              = @tagging_relationship.child_model
+        @tagging_parent_name       = DataMapper::Inflector.underscore(name).to_sym
+        @tagging_relationship_name = "#{@tagging_parent_name}_tags".to_sym
+        @tagging_relationship      = relationships[@tagging_relationship_name]
+        @tagging_class             = @tagging_relationship.child_model
 
-        taggable_class_name        = self.name
-        taggable_relationship_name = DataMapper::Inflector.underscore(taggable_class_name).pluralize
+        @taggable_relationship_name = DataMapper::Inflector.underscore(name).pluralize.to_sym
 
         @tagging_relationship.add_constraint_option(
-          taggable_relationship_name, @tagging_class, self, :constraint => :destroy!)
+          @taggable_relationship_name, @tagging_class, self, :constraint => :destroy!)
+
+        tagging_parent_name = @tagging_parent_name
 
         enhance :taggings do
           belongs_to :tag
-          belongs_to DataMapper::Inflector.underscore(taggable_class_name)
+          belongs_to tagging_parent_name
 
           options[:by].each do |tagger_class|
             belongs_to DataMapper::Inflector.underscore(tagger_class.name), :required => false
@@ -46,8 +49,8 @@ module DataMapper
 
         has n, :tags, :through => @tagging_relationship_name, :constraint => :destroy!
 
-        Tag.has n, @tagging_relationship_name,  :constraint => :destroy
-        Tag.has n, taggable_relationship_name, :through => @tagging_relationship_name
+        Tag.has n, @tagging_relationship_name,  :constraint => :destroy!
+        Tag.has n, @taggable_relationship_name, :through => @tagging_relationship_name
 
         options[:by].each do |tagger_class|
           tagger_class.is :tagger, :for => [self]
@@ -68,7 +71,7 @@ module DataMapper
             tag.kind_of?(Tag) ? tag : Tag.first(:name => tag) }.compact!
 
           # Query the objects tagged with those tags
-          tagging_class.all(:tag => tags).send(DataMapper::Inflector.underscore(self.name))
+          tagging_class.all(:tag => tags).send(tagging_parent_name)
         end
       end # ClassMethods
 
