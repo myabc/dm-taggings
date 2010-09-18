@@ -177,17 +177,30 @@ share_examples_for 'A taggable resource' do
 
     describe ".tags_list=" do
       describe "with a list of tag names" do
-        before :all do
-          @resource = create_taggable(:tags_list => "foo, bar")
-          @resource.update(:tags_list => "bar, pub")
+        describe "when tags are removed and added" do
+          before :all do
+            @resource = create_taggable(:tags_list => "foo, bar")
+            @resource.update(:tags_list => "foo, bar, pub")
+          end
+
+          it "should add new tags" do
+            @resource.reload.tags.should include(Tag["bar"], Tag["bar"], Tag["pub"])
+          end
         end
 
-        it "should add new tags" do
-          @resource.reload.tags.should include(Tag["bar"], Tag["pub"])
-        end
+        describe "when tags are added" do
+          before :all do
+            @resource = create_taggable(:tags_list => "foo, bar")
+            @resource.update(:tags_list => "bar, pub")
+          end
 
-        it "should remove tags" do
-          @resource.reload.tags.should_not include(Tag["foo"])
+          it "should add new tags" do
+            @resource.reload.tags.should include(Tag["bar"], Tag["pub"])
+          end
+
+          it "should remove tags" do
+            @resource.reload.tags.should_not include(Tag["foo"])
+          end
         end
       end
 

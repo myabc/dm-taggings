@@ -172,12 +172,10 @@ module DataMapper
 
           tag_names = list.split(",").each { |name| name.strip! }
 
-          cur_tag_names = taggings.map { |tagging| tagging.tag.name }
-          new_tag_names = tag_names - cur_tag_names
-          old_tag_names = cur_tag_names - tag_names
+          old_tag_names = taggings.map { |tagging| tagging.tag.name } - tag_names
 
           untag!(old_tag_names)
-          tag(new_tag_names)
+          tag(tag_names)
         end
 
         # @api public
