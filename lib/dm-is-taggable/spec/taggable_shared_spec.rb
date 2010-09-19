@@ -47,8 +47,8 @@ share_examples_for 'A taggable resource' do
 
     describe ".tagged_with" do
       before :all do
-        @resource_one = create_taggable(:tags_list => "red, green, blue")
-        @resource_two = create_taggable(:tags_list => "orange, yellow")
+        @resource_one = create_taggable(:tag_list => "red, green, blue")
+        @resource_two = create_taggable(:tag_list => "orange, yellow")
       end
 
       it "should return correct resources" do
@@ -66,7 +66,7 @@ share_examples_for 'A taggable resource' do
     it { should respond_to(:tag!) }
     it { should respond_to(:untag) }
     it { should respond_to(:untag!) }
-    it { should respond_to(:tags_list) }
+    it { should respond_to(:tag_list) }
     it { should respond_to(:taggings) }
 
     describe ".tag" do
@@ -188,11 +188,11 @@ share_examples_for 'A taggable resource' do
       end
     end
 
-    describe ".tags_list=" do
+    describe ".tag_list=" do
       describe "with a list of tag names" do
         describe "with blank values" do
           before :all do
-            @resource = create_taggable(:tags_list => "foo, , ,bar, , ")
+            @resource = create_taggable(:tag_list => "foo, , ,bar, , ")
           end
 
           it "should add new tags and reject blank names" do
@@ -202,8 +202,8 @@ share_examples_for 'A taggable resource' do
 
         describe "when tags are removed and added" do
           before :all do
-            @resource = create_taggable(:tags_list => "foo, bar")
-            @resource.update(:tags_list => "foo, bar, pub")
+            @resource = create_taggable(:tag_list => "foo, bar")
+            @resource.update(:tag_list => "foo, bar, pub")
           end
 
           it "should add new tags" do
@@ -213,8 +213,8 @@ share_examples_for 'A taggable resource' do
 
         describe "when tags are added" do
           before :all do
-            @resource = create_taggable(:tags_list => "foo, bar")
-            @resource.update(:tags_list => "bar, pub")
+            @resource = create_taggable(:tag_list => "foo, bar")
+            @resource.update(:tag_list => "bar, pub")
           end
 
           it "should add new tags" do
@@ -229,8 +229,8 @@ share_examples_for 'A taggable resource' do
 
       describe "when no list of tag names is given" do
         before :all do
-          @resource = create_taggable(:tags_list => "foo, bar")
-          @resource.update(:tags_list => "")
+          @resource = create_taggable(:tag_list => "foo, bar")
+          @resource.update(:tag_list => "")
         end
 
         it "should destroy taggings" do
@@ -243,15 +243,15 @@ share_examples_for 'A taggable resource' do
       end
     end
 
-    describe ".tags_list" do
+    describe ".tag_list" do
       before :all do
         @tag_names = %w(red green blue)
         @expected  = @tag_names.join(', ')
-        @resource  = create_taggable(:tags_list => @expected)
+        @resource  = create_taggable(:tag_list => @expected)
       end
 
       it "should return the list of tag names" do
-        @resource.tags_list.should eql(@expected)
+        @resource.tag_list.should eql(@expected)
       end
     end
   end

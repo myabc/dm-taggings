@@ -4,8 +4,22 @@ module DataMapper
 
       # Make a resource taggable
       #
+      # @example
+      #
+      #   class Post
+      #     include DataMapper::Resource
+      #
+      #     property :id,      Serial
+      #     property :title,   String
+      #     property :content, Text
+      #
+      #     is :taggable
+      #   end
+      #
       # @param [Hash] options(optional)
       #   A hash with options
+      # @option options [Array] :by
+      #   A list of DataMapper models that should become taggers
       #
       # @api public
       def is_taggable(options={})
@@ -57,6 +71,12 @@ module DataMapper
       end
 
       module ClassMethods
+        # @attr_reader [String] tagging_parent_name
+        # @attr_reader [String] tagging_relationship_name
+        # @attr_reader [DataMapper::Associations::OneToMany::Relationship] tagging_relationship
+        # @attr_reader [DataMapper::Resource] tagging_class
+        # @attr_reader [String] taggable_relationship_name
+
         # @api public
         def taggable?
           true
@@ -169,8 +189,8 @@ module DataMapper
         #   A tag list separated by commas
         #
         # @api public
-        def tags_list
-          @tags_list ||= tags.collect { |tag| tag.name }.join(", ")
+        def tag_list
+          @tag_list ||= tags.collect { |tag| tag.name }.join(", ")
         end
 
         # Tag a resource using tag names from the give list separated by commas.
@@ -180,8 +200,8 @@ module DataMapper
         #
         # @return [DataMapper::Associations::OneToMany::Collection]
         #   A DataMapper collection of resource's tags
-        def tags_list=(list)
-          @tags_list = list
+        def tag_list=(list)
+          @tag_list = list
 
           tag_names = list.split(",").map { |name| name.blank? ? nil : name.strip }.compact
 
@@ -193,7 +213,7 @@ module DataMapper
 
         # @api public
         def reload
-          @tags_list = nil
+          @tag_list = nil
           super
         end
 
