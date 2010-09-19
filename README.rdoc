@@ -122,6 +122,9 @@ DataObject adapters:
 
   p user.songs
   # => [#<Song @id=1 @title="Show must go on">]
+
+For detailed docs see project's RDoc[http://rdoc.info/github/solnic/dm-is-taggable/master/frames]
+
 == Authors and contributors
 
 * Martin Gamsjaeger (snusnu[http://github.com/snusnu])
