@@ -1,0 +1,152 @@
+= dm-is-taggable
+
+Tagging support for DataMapper
+
+== Where to find help
+
+* http://groups.google.com/group/datamapper
+* #datamapper channel on IRC
+
+== Dependencies
+
+* dm-core
+* dm-is-remixable
+* dm-constraints
+
+== Installation
+
+System-wide:
+
+  gem install dm-is-taggable
+
+Bundler:
+
+  gem "dm-is-taggable", "~> 0.11"
+
+== Schema
+
+The plugin differs from other typical implementations as it doesn't use 
+polymorphic associations, instead it creates explicit join models on-the-fly 
+via dm-is-remixable. For instance a <tt>Post</tt> model will have a 
+corresponding tagging model called <tt>PostTag</tt>, <tt>Book</tt> will have 
+<tt>BookTag</tt> etc. 
+
+<b>Important</b>: constraints are set to delete taggings of a corresponding 
+taggable resource when it gets deleted.
+
+== Adapters support
+
+Because of the usage of dm-constraints the pluging supports only the following 
+DataObject adapters:
+
+* mysql
+* oracle
+* postgres
+* sqlite
+* sqlserver
+
+== Basic usage
+
+  #############################################################################
+  # Taggings
+  #
+
+  class Post
+    include DataMapper::Resource
+
+    property :id,      Serial
+    property :title,   String
+    property :content, Text
+
+    is :taggable
+  end
+
+  # Create a post with tags
+  post = Post.create(
+    :title    => "Hello World", 
+    :content  => "Lorem ipsum ...", 
+    :tag_list => "foo, bar")
+
+  p post.tags
+  # => [#<Tag @id=1 @name="foo">, #<Tag @id=2 @name="bar">]
+
+  # Untag a post
+  post.untag!
+
+  p post.tags
+  # => []
+
+  # Tag a post again
+  post.tag! ["red", "green"]
+
+  p post.tags
+  # => [#<Tag @id=3 @name="red">, #<Tag @id=4 @name="green">]
+
+  # Find posts tagged with "green"
+  green_posts = Post.tagged_with("green")
+
+  p green_posts
+  # => [#<Post @id=1 @title="Hello World", @content => "Lorem ipsum ..."]
+
+  # tagged_with is chainable so you can combine it with other conditions
+  Post.tagged_with("green").all(:content => "foo")
+
+  #############################################################################
+  # Taggers
+  #
+
+  class User
+    include DataMapper::Resource
+
+    property :id,   Serial
+    property :name, String
+  end
+
+  class Song
+    include DataMapper::Resource
+
+    property :id,    Serial
+    property :title, String
+
+    is :taggable, :by => [ User ]
+  end
+
+  song = Song.create(:title => "Show must go on")
+  user = User.create(:name => "John")
+
+  # tagging via user
+  user.tag!(song, :with => "awesome, favourite")
+
+  p song.tags
+  # => [#<Tag @id=1 @name="awesome">, #<Tag @id=2 @name="favourite">]
+
+  p user.songs
+  # => [#<Song @id=1 @title="Show must go on">]
+== Authors and contributors
+
+* Martin Gamsjaeger (snusnu[http://github.com/snusnu])
+* Maxime Guilbot (maxime[http://github.com/maxime]) (original author)
+* Piotr Solnica (solnic[http://github.com/solnic])
+
+== Note on Patches/Pull Requests
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but bump version in a 
+  commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== TODO
+
+* Support for custom tag_list separators and grouping, ie tag_list = '"a tag with spaces"; "another one"'
+* Support for custom validation of Tag model
+* Caching tag_list (custom TagList < String property would be nice probably)
+* Support for more adapters!
+
+== Copyright
+
+Copyright (c) 2010 Piotr Solnica. See LICENSE for details.
+
