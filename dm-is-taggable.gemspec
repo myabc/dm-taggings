@@ -9,12 +9,12 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Maxime Guilbot", "Martin Gamsjaeger (snusnu)", "Piotr Solnica"]
-  s.date = %q{2010-09-15}
+  s.date = %q{2010-09-19}
   s.description = %q{DataMapper plugin that adds the possibility to tag models}
   s.email = %q{piotr.solnica@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README.txt",
+     "README.rdoc",
      "TODO"
   ]
   s.files = [
@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
      "History.txt",
      "LICENSE",
      "Manifest.txt",
-     "README.txt",
+     "README.rdoc",
      "Rakefile",
      "TODO",
      "VERSION",
@@ -34,12 +34,18 @@ Gem::Specification.new do |s|
      "lib/dm-is-taggable/is/tagger.rb",
      "lib/dm-is-taggable/is/tagging.rb",
      "lib/dm-is-taggable/is/version.rb",
+     "lib/dm-is-taggable/spec/taggable_shared_spec.rb",
+     "lib/dm-is-taggable/spec/tagger_shared_spec.rb",
      "spec/fixtures/models.rb",
+     "spec/integration/post_spec.rb",
      "spec/integration/tag_spec.rb",
      "spec/integration/taggable_spec.rb",
+     "spec/integration/user_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb",
-     "tasks/hoe.rb"
+     "tasks/hoe.rb",
+     "tasks/yard.rake",
+     "tasks/yardstick.rake"
   ]
   s.homepage = %q{http://github.com/solnic/dm-is-taggable}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -48,7 +54,9 @@ Gem::Specification.new do |s|
   s.summary = %q{Tagging plugin for DataMapper}
   s.test_files = [
     "spec/integration/taggable_spec.rb",
+     "spec/integration/post_spec.rb",
      "spec/integration/tag_spec.rb",
+     "spec/integration/user_spec.rb",
      "spec/fixtures/models.rb",
      "spec/spec_helper.rb"
   ]
