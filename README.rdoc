@@ -128,7 +128,7 @@ For detailed docs see project's RDoc[http://rdoc.info/github/solnic/dm-taggings/
 == Authors and contributors
 
 * Martin Gamsjaeger (snusnu[http://github.com/snusnu])
-* Maxime Guilbot (maxime[http://github.com/maxime]) (original author)
+* Maxime Guilbot (maxime[http://github.com/maxime]) (original author of dm-is-taggable)
 * Piotr Solnica (solnic[http://github.com/solnic])
 
 == Note on Patches/Pull Requests
