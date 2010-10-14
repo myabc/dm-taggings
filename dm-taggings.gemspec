@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "TODO",
      "VERSION",
-     "dm-is-taggable.gemspec",
+     "dm-taggings.gemspec",
      "lib/dm-taggings.rb",
      "lib/dm-taggings/is/tag.rb",
      "lib/dm-taggings/is/taggable.rb",
