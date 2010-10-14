@@ -7,7 +7,7 @@ require 'dm-is-remixable'
 
 # Require plugin-files
 
-dir = Pathname(__FILE__).dirname.expand_path / 'dm-is-taggable' / 'is'
+dir = Pathname(__FILE__).dirname.expand_path / 'dm-taggings' / 'is'
 
 require dir / 'taggable.rb'
 require dir / 'tag.rb'

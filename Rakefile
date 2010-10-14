@@ -18,11 +18,11 @@ begin
 
   Jeweler::Tasks.new do |gem|
 
-    gem.name        = 'dm-is-taggable'
+    gem.name        = 'dm-taggings'
     gem.summary     = 'Tagging plugin for DataMapper'
     gem.description = 'DataMapper plugin that adds the possibility to tag models'
     gem.email       = 'piotr.solnica@gmail.com'
-    gem.homepage    = 'http://github.com/solnic/dm-is-taggable'
+    gem.homepage    = 'http://github.com/solnic/dm-taggings'
     gem.authors     = [ 'Maxime Guilbot', 'Martin Gamsjaeger (snusnu)', 'Piotr Solnica' ]
 
     gem.add_dependency 'dm-core',           '~> 1.0.2'

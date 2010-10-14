@@ -2,7 +2,7 @@ require 'dm-core/spec/setup'
 require 'dm-core/spec/lib/adapter_helpers'
 
 require 'dm-validations'
-require 'dm-is-taggable'
+require 'dm-taggings'
 
 SPEC_ROOT = Pathname(__FILE__).dirname
 

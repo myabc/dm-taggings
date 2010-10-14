@@ -3,7 +3,7 @@ require Pathname(__FILE__).dirname.expand_path.parent + 'spec_helper'
 
 describe 'DataMapper::Is::Taggable' do
   supported_by :all do
-    require "dm-is-taggable/spec/tagger_shared_spec"
+    require "dm-taggings/spec/tagger_shared_spec"
 
     describe User do
       before(:all) do

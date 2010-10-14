@@ -1,4 +1,4 @@
-= dm-is-taggable
+= dm-taggings
 
 Tagging support for DataMapper
 
@@ -17,11 +17,11 @@ Tagging support for DataMapper
 
 System-wide:
 
-  gem install dm-is-taggable
+  gem install dm-taggings
 
 Bundler:
 
-  gem "dm-is-taggable", "~> 0.11"
+  gem "dm-taggings", "~> 0.11"
 
 == Schema
 
@@ -123,7 +123,7 @@ DataObject adapters:
   p user.songs
   # => [#<Song @id=1 @title="Show must go on">]
 
-For detailed docs see project's RDoc[http://rdoc.info/github/solnic/dm-is-taggable/master/frames]
+For detailed docs see project's RDoc[http://rdoc.info/github/solnic/dm-taggings/master/frames]
 
 == Authors and contributors
 
