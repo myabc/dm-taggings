@@ -4,12 +4,12 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{dm-is-taggable}
+  s.name = %q{dm-taggings}
   s.version = "0.11.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Maxime Guilbot", "Martin Gamsjaeger (snusnu)", "Piotr Solnica"]
-  s.date = %q{2010-09-19}
+  s.authors = ["Piotr Solnica"]
+  s.date = %q{2010-10-14}
   s.description = %q{DataMapper plugin that adds the possibility to tag models}
   s.email = %q{piotr.solnica@gmail.com}
   s.extra_rdoc_files = [
@@ -28,14 +28,14 @@ Gem::Specification.new do |s|
      "TODO",
      "VERSION",
      "dm-is-taggable.gemspec",
-     "lib/dm-is-taggable.rb",
-     "lib/dm-is-taggable/is/tag.rb",
-     "lib/dm-is-taggable/is/taggable.rb",
-     "lib/dm-is-taggable/is/tagger.rb",
-     "lib/dm-is-taggable/is/tagging.rb",
-     "lib/dm-is-taggable/is/version.rb",
-     "lib/dm-is-taggable/spec/taggable_shared_spec.rb",
-     "lib/dm-is-taggable/spec/tagger_shared_spec.rb",
+     "lib/dm-taggings.rb",
+     "lib/dm-taggings/is/tag.rb",
+     "lib/dm-taggings/is/taggable.rb",
+     "lib/dm-taggings/is/tagger.rb",
+     "lib/dm-taggings/is/tagging.rb",
+     "lib/dm-taggings/is/version.rb",
+     "lib/dm-taggings/spec/taggable_shared_spec.rb",
+     "lib/dm-taggings/spec/tagger_shared_spec.rb",
      "spec/fixtures/models.rb",
      "spec/integration/post_spec.rb",
      "spec/integration/tag_spec.rb",
@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
      "tasks/yard.rake",
      "tasks/yardstick.rake"
   ]
-  s.homepage = %q{http://github.com/solnic/dm-is-taggable}
+  s.homepage = %q{http://github.com/solnic/dm-taggings}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}

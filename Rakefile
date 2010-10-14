@@ -23,7 +23,7 @@ begin
     gem.description = 'DataMapper plugin that adds the possibility to tag models'
     gem.email       = 'piotr.solnica@gmail.com'
     gem.homepage    = 'http://github.com/solnic/dm-taggings'
-    gem.authors     = [ 'Maxime Guilbot', 'Martin Gamsjaeger (snusnu)', 'Piotr Solnica' ]
+    gem.authors     = [ 'Piotr Solnica' ]
 
     gem.add_dependency 'dm-core',           '~> 1.0.2'
     gem.add_dependency 'dm-constraints',    '~> 1.0.2'
