@@ -29,7 +29,7 @@ begin
     gem.add_dependency 'dm-constraints',    '~> 1.0.2'
     gem.add_dependency 'dm-is-remixable',   '~> 1.0.2'
 
-    gem.add_development_dependency 'rspec', '~> 1.3'
+    gem.add_development_dependency 'rspec', '~> 2.0'
     gem.add_development_dependency 'yard',  '~> 0.5'
 
   end
