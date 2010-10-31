@@ -34,12 +34,12 @@ share_examples_for 'A tagger resource' do
     end
 
     it "should associate tagger with taggable" do
-      @tagger_resource.reload.send(DataMapper::Inflector.underscore(@taggable.name).pluralize).should include(@taggable_resource)
+      @tagger_resource.reload.send(DataMapper::Inflector.underscore(DataMapper::Inflector.demodulize(@taggable.name)).pluralize).should include(@taggable_resource)
     end
 
     it "should associate taggings with tagger" do
       @taggable_resource.taggings.each do |tagging|
-        tagging.send(DataMapper::Inflector.underscore(@tagger.name)).should eql(@tagger_resource)
+        tagging.send(DataMapper::Inflector.underscore(DataMapper::Inflector.demodulize(@tagger.name))).should eql(@tagger_resource)
       end
     end
   end

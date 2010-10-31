@@ -9,6 +9,10 @@ describe 'DataMapper::Is::Taggable' do
       before(:all) { @taggable = Post }
       it_should_behave_like "A taggable resource"
     end
+
+    describe BigVendor::ContentManagement::ContentBlock do
+      before(:all) { @taggable = BigVendor::ContentManagement::ContentBlock }
+      it_should_behave_like 'A taggable resource'
+    end
   end
 end
-

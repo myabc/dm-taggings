@@ -33,3 +33,23 @@ class Song
   is :taggable
 end
 
+module BigVendor
+  module ContentManagement
+    class Account
+      include DataMapper::Resource
+
+      property :id,     Serial
+      property :login,  String
+    end
+
+    class ContentBlock
+      include DataMapper::Resource
+
+      property :id,           Serial
+      property :name,         String
+      property :description,  Text
+
+      is :taggable, :by => [::BigVendor::ContentManagement::Account]
+    end
+  end
+end

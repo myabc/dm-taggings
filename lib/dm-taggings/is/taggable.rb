@@ -39,12 +39,12 @@ module DataMapper
 
         remix n, :taggings
 
-        @tagging_parent_name       = DataMapper::Inflector.underscore(name).to_sym
+        @tagging_parent_name       = DataMapper::Inflector.underscore(DataMapper::Inflector.demodulize(name)).to_sym
         @tagging_relationship_name = "#{@tagging_parent_name}_tags".to_sym
         @tagging_relationship      = relationships[@tagging_relationship_name]
         @tagging_class             = @tagging_relationship.child_model
 
-        @taggable_relationship_name = DataMapper::Inflector.underscore(name).pluralize.to_sym
+        @taggable_relationship_name = DataMapper::Inflector.underscore(DataMapper::Inflector.demodulize(name)).pluralize.to_sym
 
         @tagging_relationship.add_constraint_option(
           @taggable_relationship_name, @tagging_class, self, :constraint => :destroy!)
@@ -53,17 +53,17 @@ module DataMapper
 
         enhance :taggings do
           belongs_to :tag
-          belongs_to tagging_parent_name
+          belongs_to tagging_parent_name, name
 
           options[:by].each do |tagger_class|
-            belongs_to DataMapper::Inflector.underscore(tagger_class.name), :required => false
+            belongs_to DataMapper::Inflector.underscore(DataMapper::Inflector.demodulize(tagger_class.name)), tagger_class.name, :required => false
           end
         end
 
         has n, :tags, :through => @tagging_relationship_name, :constraint => :destroy!
 
-        Tag.has n, @tagging_relationship_name,  :constraint => :destroy!
-        Tag.has n, @taggable_relationship_name, :through => @tagging_relationship_name
+        Tag.has n, @tagging_relationship_name,  :model => tagging_class, :constraint => :destroy!
+        Tag.has n, @taggable_relationship_name, :model => name, :through => @tagging_relationship_name
 
         options[:by].each do |tagger_class|
           tagger_class.is :tagger, :for => [self]

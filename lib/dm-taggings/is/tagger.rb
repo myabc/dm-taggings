@@ -71,10 +71,12 @@ module DataMapper
             self.taggable_object_classes << taggable_object_class
 
             has n, taggable_object_class.tagging_relationship_name,
+              :model      => taggable_object_class.tagging_class,
               :constraint => :destroy
 
             has n, taggable_object_class.taggable_relationship_name,
-              :through => taggable_object_class.tagging_relationship_name,
+              :model      => taggable_object_class.name,
+              :through    => taggable_object_class.tagging_relationship_name,
               :constraint => :destroy
           end
         end
@@ -112,4 +114,3 @@ module DataMapper
     end # Tagger
   end # Is
 end # DataMapper
-

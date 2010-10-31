@@ -13,6 +13,15 @@ describe 'DataMapper::Is::Taggable' do
 
       it_should_behave_like "A tagger resource"
     end
+
+    describe BigVendor::ContentManagement::Account do
+      before(:all) do
+        @tagger   = BigVendor::ContentManagement::Account
+        @taggable = BigVendor::ContentManagement::ContentBlock
+      end
+
+      it_should_behave_like 'A tagger resource'
+    end
+
   end
 end
-
